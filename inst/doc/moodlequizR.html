@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Dr. Wolfgang Rolke" />
+
+<meta name="date" content="2023-09-11" />
+
+<title>moodlequizR</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">moodlequizR</h1>
+<h4 class="author">Dr. Wolfgang Rolke</h4>
+<h4 class="date">2023-09-11</h4>
+
+
+
+<p><em>moodlequizR</em> is a package that allows us to easily create
+fully randomized tests for moodle. It includes with a shiny web
+application that allows even those with limited knowledge of R to create
+simple quizzes and exams.</p>
+<div id="basic-workflow" class="section level2">
+<h2>Basic Workflow</h2>
+<p>The idea is to create a file outside of moodle that can then be
+imported. The steps are</p>
+<ol style="list-style-type: decimal">
+<li><p>Create an R script <em>quizxyz.R</em> either with the shiny app
+by running <em>shinymoodlequizR</em> or with any ASCII word
+processor.</p></li>
+<li><p>Create a file called <em>newquiz.xml</em>. This is done
+automatically by the shiny app, or by running</p></li>
+</ol>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">make.xml</span>(quizxyz, <span class="dv">20</span>)</span></code></pre></div>
+<p>xml is one of the standard file type recognized by moodle.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Go to moodle, the Question Bank, and Import
+<em>newquiz.xml</em>.</li>
+</ol>
+</div>
+<div id="shinymoodlequizr" class="section level2">
+<h2>shinymoodlequizR</h2>
+<p>The best way to get started is by using the interactive shiny app.
+Start it with</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">shinymoodlequizR</span>()</span></code></pre></div>
+<p>It is largely self-explanatory (I hope!) and also has a few hints on
+what to do. Here are some general suggestions:</p>
+<ul>
+<li><p>when you type in the name (and folder) of a previously created
+quiz all the information will be displayed, so one doesn’t have to start
+from scratch each time.</p></li>
+<li><p>empty spaces should be avoided, so for example don’t use ‘Year 1’
+as a name of an object but use ‘Year1’.</p></li>
+</ul>
+</div>
+<div id="quizxyz.r" class="section level2">
+<h2>quizxyz.R</h2>
+<p>The “heart” of moodlequizR are R scripts that can be turned into a
+<em>newquiz.xml</em>. These have to have a certain structure.</p>
+<p>Here is a very simple example of a <em>problemxxx.R</em>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>example0<span class="ot">=</span><span class="cf">function</span>() {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>   category<span class="ot">=</span><span class="st">&quot;Examples / 1&quot;</span>  <span class="co"># moodle category where quiz will be stored</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>   quizname<span class="ot">=</span><span class="st">&quot;problem -&quot;</span> <span class="co"># running counter for problems</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>   n<span class="ot">=</span><span class="dv">50</span><span class="sc">+</span><span class="dv">1</span><span class="sc">*</span><span class="fu">sample</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">50</span>, <span class="dv">1</span>)  <span class="co"># randomized sample size</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>   m<span class="ot">=</span><span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">1</span>, <span class="dv">90</span>, <span class="dv">110</span>), <span class="dv">1</span>) <span class="co"># randomized mean</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>   s<span class="ot">=</span><span class="fu">runif</span>(<span class="dv">1</span>, <span class="dv">8</span>, <span class="dv">12</span>) <span class="co"># randomized standard deviation</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>   d<span class="ot">=</span><span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="co"># randomized number of digits</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>   x<span class="ot">=</span><span class="fu">rnorm</span>(n, m, s) <span class="co"># generate data</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>   x<span class="ot">=</span><span class="fu">round</span>(x, d) <span class="co"># round it to d digits</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>   res<span class="ot">=</span><span class="fu">as.list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">1</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>   res[[<span class="dv">1</span>]]<span class="ot">=</span> <span class="fu">round</span>(<span class="fu">mean</span>(x), d<span class="sc">+</span><span class="dv">1</span>) <span class="co"># calculate correct answer, to one digit more than the data.</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>   qtxt <span class="ot">=</span>  <span class="fu">paste0</span>( <span class="st">&quot;&lt;p&gt;The mean of the data is  &quot;</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>        moodlequizR<span class="sc">::</span><span class="fu">nm</span>(res[[<span class="dv">1</span>]], <span class="at">w =</span> <span class="fu">c</span>(<span class="dv">100</span>,<span class="dv">80</span>), <span class="at">eps =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.01</span>)),<span class="st">&quot; &lt;/p&gt;&quot;</span> )</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co"># create question text with correct answer   </span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>   atxt <span class="ot">=</span>  <span class="fu">paste0</span>( <span class="st">&quot;&lt;p&gt;The mean of the data is  &quot;</span>, res[[<span class="dv">1</span>]],<span class="st">&quot; &lt;/p&gt;&quot;</span> )</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co"># create answer text with correct answer      </span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>   htxt <span class="ot">=</span> <span class="st">&quot;Use the mean command&quot;</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co"># create hint   </span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>   <span class="fu">list</span>(<span class="at">qtxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, qtxt, <span class="st">&quot;&lt;/h5&gt;&quot;</span>, <span class="fu">moodle.table</span>(x)),</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>       <span class="at">htxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, htxt, <span class="st">&quot;&lt;/h5&gt;&quot;</span>),</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>       <span class="at">atxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, atxt, <span class="st">&quot;&lt;/h5&gt;&quot;</span>),</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>       <span class="at">category =</span> category, <span class="at">quizname =</span> quizname)</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>}</span></code></pre></div>
+<p>The routine generates a data set of size n (randomly chosen between
+50 and 100 and rounded to d (1-3) digits) from a normal distribution
+with a random mean (90-110) and a random standard deviation (8-12). The
+student has to find the mean and round to d+1 digits, and gets partial
+credit (80%) if the rounding is not done.</p>
+<p>The output of the routine has to be a list with five elements:</p>
+<ol style="list-style-type: lower-alpha">
+<li><p><strong>category</strong>: this is the category under which
+moodle will file the the problem.</p></li>
+<li><p><strong>quizname</strong>: the name of the problem (usually just
+problem - )</p></li>
+<li><p><strong>qtxt</strong>: the ENTIRE text of the problem as it will
+appear to the students.</p></li>
+<li><p><strong>htxt</strong>: Hints that students see after their first
+attempt</p></li>
+<li><p><strong>atxt</strong>: the ENTIRE text of the answers that the
+students see after the deadline for the quiz has passed.</p></li>
+</ol>
+<p><strong>Note</strong> the &lt;h5&gt; at then end of the routine. This
+is html code for <em>heading 5</em>. I use this here to make the text a
+bit more readable in moodle. But more generally we can use any html code
+and moodle knows what to do with it. The same is true for latex, as we
+will see later.</p>
+<p>Here is an example with two questions on the same page:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>example1 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>   category <span class="ot">&lt;-</span> <span class="st">&quot;Examples / Percentage 1&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>   quizname <span class="ot">&lt;-</span> <span class="st">&quot;problem - &quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#---------------------- </span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># Question 1</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#----------------------</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>   n <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">200</span><span class="sc">:</span><span class="dv">500</span>, <span class="dv">1</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>   p <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>   x <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, n, p)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>   per <span class="ot">&lt;-</span> <span class="fu">round</span>(x<span class="sc">/</span>n<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>   qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Question 1: In a survey of &quot;</span>, n, <span class="st">&quot; </span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="st">      people &quot;</span>, x, <span class="st">&quot; said that they prefer Coke </span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="st">      over Pepsi. So the percentage of people who prefer </span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="st">      Coke over Pepsi is </span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="st">      {:NM:%100%&quot;</span>, per,<span class="st">&quot;:0.1~%80%&quot;</span>, per, <span class="st">&quot;:0.5}%&quot;</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>   htxt <span class="ot">&lt;-</span> <span class="st">&quot;Don&#39;t forget to multiply by 100, don&#39;tinlcude % sign in answer&quot;</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>   atxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Question 1: x/n*100 = &quot;</span>, x, <span class="st">&quot;/&quot;</span>, n,</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>          <span class="st">&quot;*100 = &quot;</span>, per, <span class="st">&quot; (rounded to 1 digit)&quot;</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#---------------------- </span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co"># Question 2</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#----------------------</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>   p1 <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">1</span>, <span class="dv">50</span>, <span class="dv">60</span>), <span class="dv">1</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>   <span class="cf">if</span>(per<span class="sc">&lt;</span>p1) mc <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;{:MC:~%100%lower~%0%the same~%0%higher}&quot;</span>, <span class="st">&quot; &lt; &quot;</span>) </span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>   <span class="cf">if</span>(p1<span class="sc">==</span>per) mc <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;{:MC:~%0%lower~%100%the same~%0%higher}&quot;</span>, <span class="st">&quot; = &quot;</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>   <span class="cf">if</span>(per<span class="sc">&gt;</span>p1) mc <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;{:MC:~%0%lower~%0%the same~%100%higher}&quot;</span>, <span class="st">&quot; &gt; &quot;</span>)   </span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>   qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(qtxt, <span class="st">&quot;&lt;p&gt;Question 2: In a survey some</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="st">     years ago the percentage was &quot;</span>, p1, <span class="st">&quot;%.</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="st">    So the percentage now is &quot;</span>, mc[<span class="dv">1</span>]) </span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>   htxt <span class="ot">&lt;-</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>   atxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(atxt, <span class="st">&quot;&lt;p&gt;Question 2: &quot;</span>, per , mc[<span class="dv">2</span>], p1)</span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>   <span class="fu">list</span>(<span class="at">qtxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>,qtxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>        <span class="at">htxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, htxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a>        <span class="at">atxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, atxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a>        <span class="at">category =</span> category, <span class="at">quizname =</span> quizname) </span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a>} </span></code></pre></div>
+<p>so one simply creates a long string with all the questions and
+another with all the answers.</p>
+</div>
+<div id="cloze" class="section level2">
+<h2>CLOZE</h2>
+<p>moodle has a number of formats for writing questions. I mostly use
+the CLOZE format because it has a number of features that work well in
+the kinds of quizzes I typically do. There are three basic question
+types:</p>
+<ol style="list-style-type: lower-alpha">
+<li>Multiple Choice</li>
+</ol>
+<p><strong>Example</strong>: For this data set the mean is
+{1:MC:~%0%lower~%0%the same~%100%higher} than the median.</p>
+<p>In this case the students are presented with a drop-down box with the
+three options: lower, the same and higher.</p>
+<p>higher is the correct answer, so it gets 100%, the others get 0%. One
+can also give (say) 65% for partial credit. The 1 in the front means the
+problem is worth 1 point.</p>
+<p>In the package <em>moodlequizR</em> there are some routines that make
+this easier. The routine <em>mc</em> creates the code needed for
+multiple choice questions. It has a number of standard choices already
+implemented.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>moodlequizR<span class="sc">::</span><span class="fu">mc</span>(options, w) </span></code></pre></div>
+<p>here options is a character vector with the choices (or a number for
+some common ones that I predefined), w is the vector of percentages,
+usually 100 for the correct answer and 0 for the others.</p>
+<p>So the following creates the text for the multiple choice question
+above:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>moodlequizR<span class="sc">::</span><span class="fu">mc</span>(<span class="dv">1</span>, <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>, <span class="dv">100</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; $qmc</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;{1:MC:%0%lower~%0%not equal to~%100%higher~%0%can&#39;t tell}&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; $amc</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;higher&quot;</span></span></code></pre></div>
+<p>Notice that this routine creates both the question and the answer
+text.</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Numerical Answers</li>
+</ol>
+<p><strong>Example</strong>: The mean is
+{2:NM:%100%54.7:0.1~%80%54.7:0.5}.</p>
+<p>Now the students see a box and have to type in a number.</p>
+<p>Here 54.7 is the correct answer, which get’s 100%. Any answer within
+<span class="math inline">\(\pm 0.1\)</span> is also correct, allowing
+for rounding to 1 digit. The answer 55 gets 80% (a bit to much rounding)
+.</p>
+<p><em>moodlequizR::nm</em> creates numerical questions:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">nm</span>(x, w, eps, ndigits, <span class="at">pts =</span> <span class="dv">1</span>) </span></code></pre></div>
+<p>x is a vector of possible answers, w is the vector of percentages and
+eps is a vector of acceptable range <span class="math inline">\(\pm\)</span>. Alternatively one can use the
+argument ndigits. With (say) ndigits=1 the answer has to be rounded to
+one digit behind the decimal, all other rounding get partial credit.</p>
+<p>So for the above example we need to run</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>moodlequizR<span class="sc">::</span><span class="fu">nm</span>(<span class="fu">c</span>(<span class="fl">54.7</span>, <span class="fl">54.7</span>), <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">80</span>), <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>), <span class="at">pts=</span><span class="dv">2</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;{2:NM:%100%54.7:0.1~%80%54.7:0.5}&quot;</span></span></code></pre></div>
+<p>If just one number is correct, say 50, and the answer has to be given
+exactly, use <em>nm(50)</em>.</p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li>Text answers:</li>
+</ol>
+<p><strong>Example</strong>: The correct method for analysis is the
+{1:SA:correlation coefficient}</p>
+<p>Here the student sees a box and has to type in some text.</p>
+<p>There is also {1:SAC:correlation coefficient} if the case has to
+match.</p>
+<p>This type of problem has the issue of empty spaces. So if the student
+typed correlation coefficient with two spaces it would be judged wrong.
+The solution is to use *s: {1:SA:*correlation*coefficient*}</p>
+<p>Use <em>moodlequizR::sa</em> for text answers</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">sa</span>(txt, <span class="at">w=</span><span class="dv">100</span>, <span class="at">caps=</span><span class="cn">TRUE</span>, <span class="at">pts=</span><span class="dv">1</span>) </span></code></pre></div>
+<p>the function automatically adds *s in a number of places. txt can be
+a vector.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>moodlequizR<span class="sc">::</span><span class="fu">sa</span>(<span class="st">&quot;correlation coefficient&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;{1:SAC:%100%correlation*coefficient}&quot;</span></span></code></pre></div>
+<p>With these routines we can update out moodle quiz:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>example2   <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>   category <span class="ot">&lt;-</span> <span class="st">&quot;moodlequizR / Percentage 2&quot;</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>   quizname <span class="ot">&lt;-</span> <span class="st">&quot;problem - &quot;</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#---------------------- </span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co"># Question 1</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#----------------------</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>   n <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">200</span><span class="sc">:</span><span class="dv">500</span>, <span class="dv">1</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>   p <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>   x <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, n, p)</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>   per <span class="ot">&lt;-</span> <span class="fu">round</span>(x<span class="sc">/</span>n<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>   qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Question 1: In a survey of &quot;</span>, n, <span class="st">&quot;</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="st">       people &quot;</span>, x, <span class="st">&quot; said that they prefer Coke over</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="st">       Pepsi. So the percentage of people who prefer</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="st">        Coke over Pepsi is &quot;</span>, </span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>      <span class="fu">nm</span>(<span class="fu">c</span>(per, per), <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">80</span>), <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>)), <span class="st">&quot;%&quot;</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>   htxt <span class="ot">&lt;-</span> <span class="st">&quot;Don&#39;t forget to multiply by 100, don&#39;tinlcude % sign in answer&quot;</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>   atxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Question 1: x/n*100 = &quot;</span>, x, <span class="st">&quot;/&quot;</span>, n, <span class="st">&quot;*100 = &quot;</span>, per, <span class="st">&quot; (rounded to 1 digit)&quot;</span>)</span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#---------------------- </span></span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co"># Question 2</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="co">#----------------------</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>   p1 <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>)<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a>   <span class="cf">if</span>(per<span class="sc">&lt;</span>p1) {w <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">0</span>, <span class="dv">0</span>); amc <span class="ot">&lt;-</span><span class="st">&quot;&lt;&quot;</span>}</span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>   <span class="cf">if</span>(per<span class="sc">==</span>p1) {w <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>,  <span class="dv">0</span>); amc <span class="ot">&lt;-</span><span class="st">&quot;=&quot;</span>}</span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a>   <span class="cf">if</span>(per<span class="sc">&gt;</span>p1) {w <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">100</span>); amc <span class="ot">&lt;-</span><span class="st">&quot;&gt;&quot;</span>}</span>
+<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a>   opts <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;lower&quot;</span>, <span class="st">&quot;the same&quot;</span>, <span class="st">&quot;higher&quot;</span>) </span>
+<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a>   </span>
+<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a>   qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(qtxt, <span class="st">&quot;&lt;p&gt;Question 2: In a survey some</span></span>
+<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a><span class="st">        years ago the percentage was &quot;</span>, p1, <span class="st">&quot;%.</span></span>
+<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a><span class="st">        So the percentage now is &quot;</span>, <span class="fu">mc</span>(opts, w)) </span>
+<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a>   htxt <span class="ot">&lt;-</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a>   atxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(atxt, <span class="st">&quot;&lt;p&gt;Question 2: &quot;</span>, per , amc, p1)</span>
+<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a>   <span class="fu">list</span>(<span class="at">qtxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>,qtxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a>        <span class="at">htxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, htxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a>        <span class="at">atxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, atxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a>        <span class="at">category =</span> category, <span class="at">quizname =</span> quizname) </span>
+<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="creating-the-.xml-file" class="section level2">
+<h2>Creating the .xml file</h2>
+<p>Once the quizxyz.R is written we can read it into R and then use the
+<em>make.xml</em> routine to create the moodle input file
+<em>newquiz.xml</em>:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">make.xml</span>(<span class="at">fun=</span>quizxyz, <span class="at">k=</span><span class="dv">20</span>, <span class="at">folder=</span><span class="fu">getwd</span>())</span></code></pre></div>
+<p>This creates 20 quizzes and saves a file called in the folder given
+by getwd() . The routine can also pass arguments to the .R file.</p>
+<p>Next we need to open moodle and import this file.</p>
+<p><strong>Note</strong> moodle has two Import places. One is for
+importing existing questions from other courses. We need to go to
+Questions - Import, select XML and drop .</p>
+</div>
+<div id="multiple-stories" class="section level2">
+<h2>Multiple Stories</h2>
+<p>In statistics we like to use word problems. So how can we do that?
+Essentially we can make up a couple of stories:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>example3 <span class="ot">&lt;-</span> <span class="cf">function</span>(whichstory) {</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>   category <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;moodlequizR / Percentage - Story - &quot;</span>, whichstory)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>   quizname <span class="ot">&lt;-</span> <span class="st">&quot;problem -&quot;</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>    </span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>   <span class="cf">if</span>(whichstory<span class="sc">==</span><span class="dv">1</span>) {  </span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>      n <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">200</span><span class="sc">:</span><span class="dv">500</span>, <span class="dv">1</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>      p <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>      x <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, n, p)</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>      per <span class="ot">&lt;-</span> <span class="fu">round</span>(x<span class="sc">/</span>n<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>      qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;In a survey of &quot;</span>, n, <span class="st">&quot; people &quot;</span>, x, <span class="st">&quot;</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="st">        said that they prefer Coke over Pepsi. So the </span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="st">        percentage of people who prefer Coke over </span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="st">        Pepsi is &quot;</span>, </span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a>        <span class="fu">nm</span>(<span class="fu">c</span>(per, per), <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">80</span>), <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>)), <span class="st">&quot;%&quot;</span>)</span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a>   } </span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a>   <span class="cf">if</span>(whichstory<span class="sc">==</span><span class="dv">2</span>) {  </span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a>      n <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1000</span><span class="sc">:</span><span class="dv">1200</span>, <span class="dv">1</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a>      p <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.45</span>, <span class="fl">0.55</span>)</span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a>      x <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, n, p)</span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a>      per <span class="ot">&lt;-</span> <span class="fu">round</span>(x<span class="sc">/</span>n<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a>      qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;In a survey of &quot;</span>, n, <span class="st">&quot; likely </span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="st">        voters &quot;</span>, x, <span class="st">&quot; said that they would vote for</span></span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="st">        candidate A. So the percentage of people who </span></span>
+<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="st">        will vote for candidate A is &quot;</span>, </span>
+<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a>        <span class="fu">nm</span>(<span class="fu">c</span>(per, per), <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">80</span>), <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>)), <span class="st">&quot;%&quot;</span>)      </span>
+<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a>   }</span>
+<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a>   <span class="cf">if</span>(whichstory<span class="sc">==</span><span class="dv">3</span>) {  </span>
+<span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a>      n <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">100</span><span class="sc">:</span><span class="dv">200</span>, <span class="dv">1</span>)</span>
+<span id="cb13-29"><a href="#cb13-29" tabindex="-1"></a>      p <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.75</span>, <span class="fl">0.95</span>)</span>
+<span id="cb13-30"><a href="#cb13-30" tabindex="-1"></a>      x <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, n, p)</span>
+<span id="cb13-31"><a href="#cb13-31" tabindex="-1"></a>      per <span class="ot">&lt;-</span> <span class="fu">round</span>(x<span class="sc">/</span>n<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb13-32"><a href="#cb13-32" tabindex="-1"></a>      qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;In a survey of &quot;</span>, n, <span class="st">&quot; people &quot;</span>, </span>
+<span id="cb13-33"><a href="#cb13-33" tabindex="-1"></a>        x, <span class="st">&quot; said that they are planning a vacation </span></span>
+<span id="cb13-34"><a href="#cb13-34" tabindex="-1"></a><span class="st">        this summer. So the percentage of people who </span></span>
+<span id="cb13-35"><a href="#cb13-35" tabindex="-1"></a><span class="st">        are planning a vacation is &quot;</span>, <span class="fu">nm</span>(<span class="fu">c</span>(per, per),</span>
+<span id="cb13-36"><a href="#cb13-36" tabindex="-1"></a>        <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">80</span>), <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>)), <span class="st">&quot;%&quot;</span>)      </span>
+<span id="cb13-37"><a href="#cb13-37" tabindex="-1"></a>   }</span>
+<span id="cb13-38"><a href="#cb13-38" tabindex="-1"></a>   htxt <span class="ot">&lt;-</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb13-39"><a href="#cb13-39" tabindex="-1"></a>   atxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;x/n*100 = &quot;</span>, x, <span class="st">&quot;/&quot;</span>, n, <span class="st">&quot;*100 = &quot;</span>, </span>
+<span id="cb13-40"><a href="#cb13-40" tabindex="-1"></a>          per, <span class="st">&quot; (rounded to 1 digit)&quot;</span>)</span>
+<span id="cb13-41"><a href="#cb13-41" tabindex="-1"></a></span>
+<span id="cb13-42"><a href="#cb13-42" tabindex="-1"></a>   <span class="fu">list</span>(<span class="at">qtxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>,qtxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb13-43"><a href="#cb13-43" tabindex="-1"></a>        <span class="at">htxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, htxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb13-44"><a href="#cb13-44" tabindex="-1"></a>        <span class="at">atxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, atxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb13-45"><a href="#cb13-45" tabindex="-1"></a>        <span class="at">category =</span> category, <span class="at">quizname =</span> quizname) </span>
+<span id="cb13-46"><a href="#cb13-46" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>Note</strong> we can match each story with likely numbers, so
+in the Coke vs Pepsi story n is between 200 and 500 whereas in the votes
+story it is between 1000 and 1200.</p>
+<p><strong>Note</strong> that this routine has the argument
+<em>whichstory</em>, which we can add to genquiz or make.xml:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">make.xml</span>(example3, <span class="dv">20</span>, <span class="at">whichstory=</span><span class="dv">2</span>)</span></code></pre></div>
+</div>
+<div id="data-sets" class="section level2">
+<h2>Data Sets</h2>
+<p>Often in Statistics we have data sets the students need to use. So
+these data sets need to be displayed properly in the quiz and it must be
+easy for the students to “transfer” them to R.</p>
+<p>To display the data in the quiz use the <em>moodle.table</em>
+function. If it is called with a vector it arranges it as a table with
+(ncol=) 10 colums. If it is called with a matrix or data frame it makes
+a table as is.</p>
+<p>To get the data from the quiz into R moodlequizR has the routine
+<em>paste.data()</em>. All the students have to do is highlight the data
+(including column names if present) in the quiz with the mouse, right
+click copy, switch to R and run</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>moodledata <span class="ot">=</span> <span class="fu">paste.data</span>()</span></code></pre></div>
+<p>There is now an object called moodledata in R. If it is a single
+vector it can be used as is, say</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">mean</span>(moodledata)</span></code></pre></div>
+<p>The routine correctly reads vectors, both numeric and character. Also
+tables with a mix of character and numeric columns. It works on both
+Windows and Apple operating systems.</p>
+<p>So we could have another version of the above example, this time
+presenting the students with the the raw data:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>example4 <span class="ot">&lt;-</span> </span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="cf">function</span>() {</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>   category <span class="ot">&lt;-</span> <span class="st">&quot;moodlequizR / Percentage from Raw Data&quot;</span> </span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>   quizname <span class="ot">&lt;-</span> <span class="st">&quot;problem - &quot;</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>   n <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">200</span><span class="sc">:</span><span class="dv">500</span>, <span class="dv">1</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>   p <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>   x <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">&quot;Coke&quot;</span>, <span class="st">&quot;Pepsi&quot;</span>), <span class="at">size=</span>n, </span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>               <span class="at">replace=</span><span class="cn">TRUE</span>, <span class="at">prob=</span><span class="fu">c</span>(p,<span class="dv">1</span><span class="sc">-</span>p))</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>   per <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">table</span>(x)[<span class="dv">1</span>]<span class="sc">/</span>n<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a>   qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;In a survey people were asked whether </span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="st">    they prefer Coke over Pepsi. Their answers</span></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="st">    are below. So the percentage of people who </span></span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="st">    prefer Coke over Pepsi is &quot;</span>, </span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a>    <span class="fu">nm</span>(<span class="fu">c</span>(per, per), <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">80</span>), <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>)), <span class="st">&quot;%&lt;hr&gt;&quot;</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a>    <span class="fu">moodle.table</span>(x))</span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a>   htxt <span class="ot">&lt;-</span> <span class="st">&quot;&quot;</span> </span>
+<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a>   atxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;x/n*100 = &quot;</span>, <span class="fu">table</span>(x)[<span class="dv">1</span>], <span class="st">&quot;/&quot;</span>, n,</span>
+<span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a>            <span class="st">&quot;*100 = &quot;</span>, per, <span class="st">&quot; (rounded to 1 digit)&quot;</span>)</span>
+<span id="cb17-21"><a href="#cb17-21" tabindex="-1"></a>   </span>
+<span id="cb17-22"><a href="#cb17-22" tabindex="-1"></a>   <span class="fu">list</span>(<span class="at">qtxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>,qtxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb17-23"><a href="#cb17-23" tabindex="-1"></a>        <span class="at">htxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, htxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>),</span>
+<span id="cb17-24"><a href="#cb17-24" tabindex="-1"></a>        <span class="at">atxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, atxt,<span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb17-25"><a href="#cb17-25" tabindex="-1"></a>        <span class="at">category =</span> category, <span class="at">quizname =</span> quizname) </span>
+<span id="cb17-26"><a href="#cb17-26" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="graphics" class="section level2">
+<h2>Graphics</h2>
+<p>Often in statistics we use graphics. We can do this as follows: first
+you need to install the R package <strong>base64</strong>.</p>
+<p>Say we want the quiz to show a histogram and the student has to
+decide whether or not it is bell-shaped:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>example5 <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">bell=</span><span class="cn">TRUE</span>) {</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>  <span class="fu">require</span>(base64)</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>   category <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;moodlequizR / </span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="st">      bell-shaped? - &quot;</span>, <span class="fu">ifelse</span>(bell, <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;No&quot;</span>)) </span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>   quizname <span class="ot">&lt;-</span> <span class="st">&quot;problem - &quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>   n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>   <span class="cf">if</span>(bell) x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">10</span>, <span class="dv">3</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>   <span class="cf">else</span> x<span class="ot">&lt;-</span> <span class="fu">rchisq</span>(n, <span class="dv">2</span>) <span class="sc">+</span> <span class="dv">8</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>   </span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a>   plt <span class="ot">&lt;-</span> <span class="fu">hplot</span>(x, <span class="at">n=</span><span class="dv">50</span>, <span class="at">returnGraph=</span><span class="cn">TRUE</span>) </span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>   plt64 <span class="ot">&lt;-</span> moodlequizR<span class="sc">::</span><span class="fu">png64</span>(plt)</span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a>   <span class="cf">if</span>(bell) mmc <span class="ot">&lt;-</span> <span class="fu">mc</span>(<span class="dv">5</span>, <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">0</span>))</span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a>   <span class="cf">else</span> mmc <span class="ot">&lt;-</span> <span class="fu">mc</span>(<span class="dv">5</span>, <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>))</span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a>   qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;The data shown in this histogram &quot;</span>, </span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a>              mmc, <span class="st">&quot; bell-shaped&lt;hr&gt;&quot;</span>, plt64)</span>
+<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a>   </span>
+<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a>   htxt <span class="ot">&lt;-</span> <span class="st">&quot;&quot;</span> </span>
+<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a>   <span class="cf">if</span>(bell) atxt <span class="ot">&lt;-</span> <span class="st">&quot;It is bell-shaped&quot;</span></span>
+<span id="cb18-20"><a href="#cb18-20" tabindex="-1"></a>   <span class="cf">else</span> atxt <span class="ot">&lt;-</span> <span class="st">&quot;It is not bell-shaped&quot;</span></span>
+<span id="cb18-21"><a href="#cb18-21" tabindex="-1"></a>   </span>
+<span id="cb18-22"><a href="#cb18-22" tabindex="-1"></a>   <span class="fu">list</span>(<span class="at">qtxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, qtxt, <span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb18-23"><a href="#cb18-23" tabindex="-1"></a>        <span class="at">htxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, htxt, <span class="st">&quot;&lt;/h5&gt;&quot;</span>),         </span>
+<span id="cb18-24"><a href="#cb18-24" tabindex="-1"></a>        <span class="at">atxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, atxt, <span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb18-25"><a href="#cb18-25" tabindex="-1"></a>        <span class="at">category =</span> category, <span class="at">quizname =</span> quizname) </span>
+<span id="cb18-26"><a href="#cb18-26" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="non-statistics-courses" class="section level2">
+<h2>Non Statistics Courses</h2>
+<p>The same basic ideas can be used to make random quizzes for other
+courses. In principle any other computer language can be used as well,
+but I will stick with R and make a quiz for calculus:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>example6 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>   category <span class="ot">&lt;-</span> <span class="st">&quot;moodlequizR / Integral&quot;</span></span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>   quizname <span class="ot">&lt;-</span> <span class="st">&quot;problem - &quot;</span></span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>   A <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">1</span>), <span class="dv">1</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>   B <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="dv">1</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>   fun <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {x<span class="sc">*</span><span class="fu">exp</span>(x)}</span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>   I <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">integrate</span>(fun, A, B)<span class="sc">$</span>value, <span class="dv">2</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a>   qtxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;$$</span><span class="sc">\\</span><span class="st">int_{&quot;</span>, A, <span class="st">&quot;}^{&quot;</span>, B, <span class="st">&quot;} xe^x dx = $$&quot;</span>, </span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a>   <span class="fu">nm</span>(I, <span class="at">eps=</span><span class="fl">0.1</span>))</span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a>   htxt <span class="ot">&lt;-</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a>   atxt <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;$$</span><span class="sc">\\</span><span class="st">int_{&quot;</span>, A, <span class="st">&quot;}^{&quot;</span>, B, <span class="st">&quot;} xe^x dx = $$&quot;</span>, I)</span>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a>   <span class="fu">list</span>(<span class="at">qtxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, qtxt, <span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a>        <span class="at">htxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, htxt, <span class="st">&quot;&lt;/h5&gt;&quot;</span>),         </span>
+<span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a>        <span class="at">atxt =</span> <span class="fu">paste0</span>(<span class="st">&quot;&lt;h5&gt;&quot;</span>, atxt, <span class="st">&quot;&lt;/h5&gt;&quot;</span>), </span>
+<span id="cb19-16"><a href="#cb19-16" tabindex="-1"></a>        <span class="at">category =</span> category, <span class="at">quizname =</span> quizname) </span>
+<span id="cb19-17"><a href="#cb19-17" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>Note</strong> here we see that one can use latex notation in
+Moodle quizzes, and so display formulas!</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
