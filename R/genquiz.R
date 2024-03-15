@@ -1,18 +1,19 @@
 #' genquiz
 #' 
 #' This function generates an xml file for import into moodle.
+#' @param k =1, how many quizzes?
 #' @param fun name of the R routine that makes a quiz
-#' @param k how many quizzes?
 #' @param folder where is the .R located?
-#' @param Show (optional) want to see what it looks like?
+#' @param Show =FALSE (optional) want to see what it looks like?
 #' @param problem (optional) which problem should be done?
+#' @param funname name of quiz
 #' @param ... further arguments passed to fun
 #' @return None 
 #' @export
 
-genquiz = function(fun, k=1, folder, problem=0, Show = FALSE, ...) {
+genquiz = function(k=1, fun, folder, problem=0, funname, Show = FALSE, ...) {
     if(missing(folder)) {
-        stop("The folder where the R scipt can be found and the file newquiz.xml will be stored is required")
+        stop("The folder where the R scipt can be found and the file XML will be stored is required")
     }  
     outfile = c("<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
              "<quiz>")
@@ -48,7 +49,8 @@ genquiz = function(fun, k=1, folder, problem=0, Show = FALSE, ...) {
         outfile = c(outfile, "", lns)      
       }  
     }        
-    outfile = c(outfile, "</quiz>")  
-    write(outfile, paste0(folder,"/newquiz.xml") )  
+    outfile = c(outfile, "</quiz>") 
+    if(missing(funname)) funname=deparse(substitute(fun))
+    write(outfile, paste0(folder, "/", funname, ".xml") )  
     
 }

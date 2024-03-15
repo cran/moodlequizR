@@ -13,43 +13,56 @@ mcchoices=c("yes , no",
 names(mcchoices)=mcchoices
 names(mcchoices)[11]="\u03BC / \u03C0 / \u03C3 / \u03BB / \u03C1 / other"
 Distributions=c("Normal", "Uniform", "Beta", "Gamma", "Categorical Variable", "Bivariate Normal", "R Code", "No Data")
-moodleRquizzes=c(" ", paste0("moodleRexample",1:12), "Refresh Page for New Selection")
-names(moodleRquizzes)=c("0: None", "1: Mean", "2: Mean and Median", "3: Five Number Summary", 
-                        "4: One Categorical Variable", "5: Two Categorical Variables",   
-                        "6: Confidence Interval for Mean", "7: Confidence Interval for Percentage",  
-                        "8: Hypothesis Testing for Mean", "9: Sample Size for Proportion", 
-                        "10: Correlation and Regression", "11: Precalculus: Solve Linear System", 
-                        "12: Calculus: Find Derivatives and Integral", "Refresh Page for New Selection")  
+moodleRquizzes=c(" ", paste0("moodleRexample",1:15), "Refresh Page for New Selection")
+names(moodleRquizzes)=c("0: None", 
+                        "1: Find the Mean", 
+                        "2: Find the Mean and Median", 
+                        "3: Find the Five Number Summary", 
+                        "4: One Categorical Variable", 
+                        "5: Two Categorical Variables",   
+                        "6: Confidence Interval for Mean", 
+                        "7: Confidence Interval for Percentage",  
+                        "8: Hypothesis Testing for Mean", 
+                        "9: Sample Size for Proportion", 
+                        "10: Correlation and Regression", 
+                        "11: Example for Multiple Stories",
+                        "12: Example for a Quiz with Data from Internet",
+                        "13: Example on how to Display R Output in a Moodle Quiz",
+                        "14: Precalculus: Solve A Linear System", 
+                        "15: Calculus: Find Derivatives and Integral", 
+                        "Refresh Page for New Selection")  
                
 shinyUI(fluidPage(
   titlePanel("moodlequizR"),
-  radioButtons("dtl", "Detailed Explanations", choices=c("No", "Yes"), inline = TRUE),
+  radioButtons("dtl", "Detailed Explanations", choices=c("No", "Yes"), inline = TRUE), 
   fluidRow(
-    column(3, textInput("quizname","Name of Quiz / File ",  placeholder = " Quiz 1")),
-    column(6, selectInput("moodleRquiz", "MoodleR Quizzes", choices=moodleRquizzes)),
-    column(3, actionButton("readbutton",HTML("<font color=\"blue\">Click twice to read in info<font color=\"black\">")))
+    column(3, textInput("quizname", "Name of Quiz / File ",  value="")),
+    column(6, textInput("folder","Folder for Files", value="c:\\"))
+  ), 
+  uiOutput("nofolder"), 
+  fluidRow(  
+    column(4, selectInput("moodleRquizzes", "Included MoodlequizR Quizzes", choices=moodleRquizzes)),
+    column(3, actionButton("readbutton", HTML("<font color=\"blue\">Click twice to read in info<font color=\"black\">")), style = "margin-top: 25px;")
   ),
- fluidRow( 
+  fluidRow(
+    column(6, textInput("category","Category", placeholder=" top /  middle / bottom")),
+    column(6, textInput("numquiz","Number of Quizzes", value="25", width="35%")),  
+  ),  
+  fluidRow( 
     conditionalPanel( condition = "input.dtl == 'Yes'",
       HTML("<h5>&nbsp;&nbsp;Choose the name of the quiz as it will appear in the questions bank. This will also be the name of the .R file</h5>"),                    
       HTML("<h5>&nbsp;&nbsp;If you want to start with one of the built-in quizzes, choose it here and then click the button twice</h5>"),
     )
-  ), 
-  fluidRow(
-    column(4, textInput("category","Category", placeholder=" top /  middle / bottom")),
-    column(2, textInput("numquiz","Quizzes", value="25", width="50%")),
-    column(6, textInput("folder","Folder for Files", value="getwd()"))  
   ),
   fluidRow(
     conditionalPanel( condition = "input.dtl == 'Yes'",
       HTML("<h5>&nbsp;&nbsp;Choose the Category / Subcategory where the quizzes will be stored in moodle</h5>"),
       HTML("<h5>&nbsp;&nbsp;Choose how many quizzes to generate</h5>"),
-      HTML("<h5>&nbsp;&nbsp;Choose where the .R file and the newquiz.xml file are saved</h5>")
+      HTML("<h5>&nbsp;&nbsp;Choose where the R script and the XML file are saved</h5>")
     )
   ),  
   fluidRow(
-    column(6, textAreaInput("comments", "Comments (Optional)")),
-    column(6, numericInput("numquestions", "Number of Questions ", value=1, width="25%"))  
+    column(12, textAreaInput("comments", "Comments (Optional)"))
   ),
   fluidRow(
     conditionalPanel( condition = "input.dtl == 'Yes'",
@@ -110,7 +123,7 @@ shinyUI(fluidPage(
      conditionalPanel( condition = "input.distribution != 'Bivariate Normal'",           
        conditionalPanel( condition = "input.distribution != 'R Code'",           
          fluidRow(          
-           column(5, selectInput("ndigit", "Round data to ... digits behind decimal", choices=c(-7:7), selected="1")),
+           column(4, selectInput("ndigit", "Round data to ... digits behind decimal", choices=c(-7:7), selected="1")),
            column(3, selectInput("srt", "Sort data?", choices=c("Yes","No"), selected="No"))
          )  
        )  
@@ -129,16 +142,15 @@ shinyUI(fluidPage(
      )
   ),
   uiOutput("defineInputs"),
+  fluidRow(column(6, actionButton("addbutton", HTML("<font color=\"blue\">Add another Question / Part of a Question<font color=\"black\">")))),
   HTML("<hr>"),
   radioButtons("addgraph", "Add a Graph?", choices=c("No", "Yes"), inline=TRUE),
   conditionalPanel( condition = "input.addgraph=='Yes'",
     textAreaInput("graphcommand", "Graph Commands", value="plt=")
   ),
-  textAreaInput("htxt", "Any hints after first try?", placeholder="Did you forget to round?"),
-  fluidRow(
-   column(3, radioButtons("doquiz", "Generate xml file", choices = c("Yes", "No"), inline = TRUE)),
-   column(3, actionButton("xmlbutton",HTML("<font color=\"red\">Execute!<font color=\"black\">")))
-  ),
+  textAreaInput("htxt", "Any hints after first try?", ""),
+  fluidRow(column(3, radioButtons("doquiz", "Generate xml file", choices = c("Yes", "No"), inline = TRUE))),
+  fluidRow(column(3, actionButton("xmlbutton",HTML("<font color=\"red\">Create the Files!<font color=\"black\">")))  ),
   textOutput("messages"),
   fluidRow(verbatimTextOutput("text"))
 ))

@@ -3,12 +3,12 @@
 \docType{data}
 \name{moodleRexample9}
 \alias{moodleRexample9}
-\title{Info for moodleR example 9}
+\title{Info for moodlequizR example 9}
 \format{
 A list
 \describe{
   \item{quizname}{example9}
-  \item{category}{MoodleR Examples / 9}
+  \item{category}{MoodlequizR Examples / 9}
   ...
 }
 }

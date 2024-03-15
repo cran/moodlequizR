@@ -4,7 +4,7 @@
 \alias{qamatrix}
 \title{qamatrix}
 \usage{
-qamatrix(tbl, points = 100, precision = 0, Border = TRUE, before, after)
+qamatrix(tbl, points = 100, precision = 0, Border = 1, before, after)
 }
 \arguments{
 \item{tbl}{a matrix}

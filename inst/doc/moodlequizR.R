@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
 #  make.xml(quizxyz, 20)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  shinymoodlequizR()
+#  moodlequizR::shinymoodlequizR()
 
 ## -----------------------------------------------------------------------------
 example0=function() {
@@ -132,8 +132,16 @@ example2   <- function() {
         category = category, quizname = quizname) 
 }
 
+## ----eval=FALSE---------------------------------------------------------------
+#  dta=paste.data()
+
+## -----------------------------------------------------------------------------
+x=1:20
+y=2*x+round(rnorm(20, 0, 3),2)
+summary(lm(y~x))
+
 ## ---- eval=FALSE--------------------------------------------------------------
-#  make.xml(fun=quizxyz, k=20, folder=getwd())
+#  make.xml(quizxyz, k=20, folder=getwd())
 
 ## -----------------------------------------------------------------------------
 example3 <- function(whichstory) {
@@ -188,9 +196,6 @@ example3 <- function(whichstory) {
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  moodledata = paste.data()
-
-## ----eval=FALSE---------------------------------------------------------------
-#  mean(moodledata)
 
 ## -----------------------------------------------------------------------------
 example4 <- 
@@ -257,10 +262,10 @@ example6 <- function() {
    B <- round(runif(1, 1, 2), 1)
    fun <- function(x) {x*exp(x)}
    I <- round(integrate(fun, A, B)$value, 2)
-   qtxt <- paste0("$$\\int_{", A, "}^{", B, "} xe^x dx = $$", 
+   qtxt <- paste0("\\(\\int_{", A, "}^{", B, "} xe^x dx = \\)", 
    nm(I, eps=0.1))
    htxt <- ""
-   atxt <- paste0("$$\\int_{", A, "}^{", B, "} xe^x dx = $$", I)
+   atxt <- paste0("\\(\\int_{", A, "}^{", B, "} xe^x dx = \\)", I)
    list(qtxt = paste0("<h5>", qtxt, "</h5>"), 
         htxt = paste0("<h5>", htxt, "</h5>"),         
         atxt = paste0("<h5>", atxt, "</h5>"), 

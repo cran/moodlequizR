@@ -15,7 +15,7 @@
 #' qamatrix(p)
 #' qamatrix(p, c(100,80), c(0,0.1))
 
-qamatrix = function(tbl, points=100, precision=0, Border=TRUE, before, after) {
+qamatrix = function(tbl, points=100, precision=0, Border=1, before, after) {
   if(missing(tbl)) {
     tbl=matrix(" ", nrow(before),ncol(before))
     dimnames(tbl)=dimnames(before)
@@ -48,7 +48,7 @@ qamatrix = function(tbl, points=100, precision=0, Border=TRUE, before, after) {
     qtxt = paste0(qtxt, "<tr>", qtmp, "</tr>")        
     atxt = paste0(atxt, "<tr>", atmp, "</tr>")
   }
-  st=ifelse(Border, "<p><table Border=1>", "<p><table>")
+  st=paste0("<p><table Border=", Border, ">")
   qtxt = paste0(st, qtxt, "</table>")
   atxt = paste0(st, atxt, "</table>")
   list(qtxt=qtxt,atxt=atxt)

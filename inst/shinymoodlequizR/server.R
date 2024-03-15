@@ -28,48 +28,88 @@ all.inputs=list("radio"=c("dtl", "addgraph", "doquiz", paste0("question",1:20,"n
     
 shinyServer(function(input, output, session) {
 
+   numquestions <- reactiveValues()
+   numquestions$a=1
+   nq=reactive({
+       ip=reactiveValuesToList(input)
+       a=names(ip)
+       n=length(a[startsWith(a,"qtxt")])
+       if(n==0) n=1
+       n
+   })
+
    output$defineInputs=renderUI({
-      n=as.numeric(input$numquestions)
+      n=as.numeric(numquestions$a)
       out=as.list(1:n)
-      for(i in 1:n)
+      for(i in 1:n) {
         out[[i]] =tagList(
           HTML("<hr>"),
-          HTML(paste("<h4>Question ", i, "</h4>")),
+          HTML(paste("<h4>Question / Part of Question ", i, "</h4>")),
           radioButtons(paste0("question",i,"newline"), "Start on new Line", choices=c("Yes", "No"), inline=TRUE),
-          textAreaInput(paste0("qtxt",i), "",  value="", width="100%"),
-          radioButtons(paste0("answertype",i), "Type of Answer", choices=c("Numeric Answer", "Multiple Choice", "Numeric Matrix", "Verbatim"), inline = TRUE),
-          conditionalPanel( condition = paste0('input.answertype', i, '== "Numeric Answer"|input.answertype', i, '== "Numeric Matrix"'),
-                            column(3, textInput(paste0("numpoints",i), "Point(s)", value="100", width = "50%")),
-                            column(3, textInput(paste0("numprecision",i), "Precision(s)", value="0", width = "50%"))
+          textAreaInput(paste0("qtxt",i), "Text of Question",  value="", width="100%"),
+          textAreaInput(paste0("calculate.answer",i), "R Calculations for this Question", value=""),    
+          radioButtons(paste0("answertype",i), "Type of Question", choices=c("Number", "Multiple Choice", "Matrix", "Verbatim"), inline = TRUE),     
+          conditionalPanel( condition = paste0('input.answertype', i, '== "Number"|input.answertype', i, '== "Matrix"'),
+                            column(6, textInput(paste0("numpoints",i), "Point(s)", value="100", width = "50%")),
+                            column(6, textInput(paste0("numprecision",i), "Precision(s)", value="0", width = "50%"))
           ),
           conditionalPanel( condition = paste0('input.answertype', i,  '== "Multiple Choice"'),
-                            column(3, textInput(paste0("mcoptions",i), "Choices", placeholder="Yes,No,Maybe")),
-                            column(3, selectInput(paste0("mcoptions",i,"a"), "Choices (List)", choices = mcchoices))
+                            column(6, textInput(paste0("mcoptions",i), "Choices", placeholder="Yes,No,Maybe")),
+                            column(6, selectInput(paste0("mcoptions",i,"a"), "Choices (List)", choices = mcchoices))
           ), 
-          textAreaInput(paste0("calculate.answer",i), "Calculations for Questions", placeholder=""),    
-          textAreaInput(paste0("atxt",i), "Calculations for Correct Answers", placeholder=" ", width="100%"),
-          
+          textAreaInput(paste0("atxt",i), "Text of Answer",  placeholder="Same as question if empty", width="100%")
           )
+      }    
       out
    })
    
+   observeEvent(input$addbutton, {
+       i=nq()+1
+       insertUI(selector=paste0("#atxt",i-1),
+                where="afterEnd",
+                ui=tagList(
+          HTML("<hr>"),
+          HTML(paste("<h4>Question / Part of Question ", i, "</h4>")),
+          radioButtons(paste0("question",i,"newline"), "Start on new Line", choices=c("Yes", "No"), inline=TRUE),
+          textAreaInput(paste0("qtxt",i), "Text of Question",  value="", width="100%"),
+          textAreaInput(paste0("calculate.answer",i), "R Calculations for this Question", value=""),    
+          radioButtons(paste0("answertype",i), "Type of Question", choices=c("Number", "Multiple Choice", "Matrix", "Verbatim"), inline = TRUE),     
+          conditionalPanel( condition = paste0('input.answertype', i, '== "Number"|input.answertype', i, '== "Matrix"'),
+                            column(6, textInput(paste0("numpoints",i), "Point(s)", value="100", width = "50%")),
+                            column(6, textInput(paste0("numprecision",i), "Precision(s)", value="0", width = "50%"))
+          ),
+          conditionalPanel( condition = paste0('input.answertype', i,  '== "Multiple Choice"'),
+                            column(6, textInput(paste0("mcoptions",i), "Choices", placeholder="Yes,No,Maybe")),
+                            column(6, selectInput(paste0("mcoptions",i,"a"), "Choices (List)", choices = mcchoices))
+          ), 
+          textAreaInput(paste0("atxt",i), "Text of Answer",  placeholder="Same as question if empty", width="100%")
+                )
+      )
+   })  
+   
+   
+
    observeEvent(input$xmlbutton,{
       input.values=reactiveValuesToList(input)
       input.values[["catpmatrix"]] = input$catpmatrix
-      dump("input.values", paste0(folder(),"/",input$quizname,".dta"))
+      input.values$numquestions=nq()
+      if( !("NO" %in% folder()) )
+        dump("input.values", paste0(folder(),"/",input$quizname,".dta"))
       
    })
 
    observeEvent(input$readbutton,{
-        if(input$moodleRquiz!=" ") {
-            input.values=get(input$moodleRquiz)
+        if(input$moodleRquizzes!=" ") {
+            input.values=get(input$moodleRquizzes)
         }    
-        else {    
-          fl=paste0(folder(),"/", input$quizname,".dta")
-          if( !file.exists(fl) ) return(NULL)
-          source(fl)
+        else {  
+          if( !(folder()[1] %in% c("c:\\", "NO")) ) {       
+            fl=paste0(folder(), "/", input$quizname,".dta")          
+            if( !file.exists(fl) ) return(NULL)
+            source(fl)            
+          }  
         } 
-        updateNumericInput(session, "numquestions", value=input.values[["numquestions"]]) 
+        numquestions$a=input.values$numquestions          
         for(i in 1:length(input.values)) { 
           if(names(input.values)[i]%in%all.inputs[["radio"]])     
              updateRadioButtons(session, names(input.values)[i],  selected = input.values[[i]])
@@ -85,15 +125,17 @@ shinyServer(function(input, output, session) {
 
    })        
    
-   observeEvent(input$readbutton,{
+   observeEvent(input$readbutton,{    
      if(input$distribution!="Categorical Variable") return(NULL)
-     if(input$moodleRquiz!=" ") {
-        input.values=get(input$moodleRquiz)
+     if(input$moodleRquizzes!=" ") {
+        input.values=get(input$moodleRquizzes)
      }   
-     else {    
-        fl=paste0(folder(),"/", input$quizname,".dta")
-        if( !file.exists(fl) ) return(NULL)
-        source(fl)
+     else { 
+        if( !(folder()[1] %in% c("c:\\","NO")) ) {   
+          fl=paste0(folder(), "/", input$quizname,".dta")
+          if( !file.exists(fl) ) return(NULL)
+          source(fl)
+        }  
      }
      updateMatrixInput(session, "catpmatrix",  value = input.values[["catpmatrix"]])
 
@@ -117,16 +159,16 @@ shinyServer(function(input, output, session) {
    
    get.info=reactive({
      input.values <- reactiveValuesToList(input)
-     input.values$question1newline="No"
-     out=as.list(1:input$numquestions)
-     for(i in 1:input$numquestions) {
+     input.values$question1newline="No"     
+     out=as.list(1:nq())
+     for(i in 1:nq()) {
         calc.answer=strsplit(input.values[[paste0("calculate.answer", i)]],"\n")[[1]]
         if(length(calc.answer)>1) {
               extra.calc=calc.answer[-length(calc.answer)]
               calc.answer=calc.answer[length(calc.answer)]
         }
         else extra.calc=NULL
-        if(i==input$numquestions & input$addgraph=="Yes") {
+        if(i==numquestions$a & input$addgraph=="Yes") {
             graphcommand=strsplit(input.values[["graphcommand"]],"\n")[[1]] 
             extra.calc  = c(extra.calc, graphcommand, "plt64=png64(plt)")
         }
@@ -158,16 +200,7 @@ shinyServer(function(input, output, session) {
         else
            ln = paste0(nme, "=", a[1], "+", a[3], "*", "sample(0:", ((a[2]-a[1])/a[3]), ", 1)") 
         ln
-   }
-
-   folder = reactive({
-     if(input$folder!="getwd()") {
-        if(!dir.exists(input$folder)) return(NULL)
-        return(input$folder)
-     }
-     folder=strsplit(getwd(), "/")[[1]]
-     paste0(folder[1:(length(folder)-1)],collapse="/")
-   })           
+   }           
    
    gen.R = eventReactive(input$xmlbutton,{ 
         txt = paste0(input$quizname,"=function() {")
@@ -182,8 +215,8 @@ shinyServer(function(input, output, session) {
                 txt[length(txt)+1]=paste0("x=round(x, ", as.numeric(input$ndigit),")")        
         }      
         txt = c(txt, strsplit(input$gencalc, "\n")[[1]])
-        txt[length(txt)+1] = paste0("res=as.list(1:", input$numquestions, ")")  
-        for(i in 1:input$numquestions) 
+        txt[length(txt)+1] = paste0("res=as.list(1:", nq(), ")")          
+        for(i in 1:nq()) 
             txt = c(txt, get.info()[[i]]$extra.calc, paste0("res[[", i, "]]= ", get.info()[[i]]$calc.answer))         
         txt[length(txt)+1] = paste("qtxt = ", qtxt())
         txt[length(txt)+1] = paste("atxt = ", atxt())     
@@ -261,14 +294,14 @@ shinyServer(function(input, output, session) {
    
   
    qtxt = eventReactive(input$xmlbutton,{
-        starttext=rep("", input$numquestions)
-        endtext=rep("", input$numquestions)
-        question=rep("", input$numquestions)
-        for(i in 1:input$numquestions) { 
+        starttext=rep("", nq())
+        endtext=rep("", nq())
+        question=rep("", nq())
+        for(i in 1:nq()) { 
             starttext[i]= get.info()[[i]]$qtxt[1]
             if(get.info()[[i]]$questionnewline=="Yes") starttext[i]=paste0("<p>",starttext[i])
             if(length(get.info()[[i]]$qtxt)>1) endtext[i]=get.info()[[i]]$qtxt[2]
-            if(get.info()[[i]]$answertype=="Numeric Answer")   {
+            if(get.info()[[i]]$answertype=="Number")   {
                 w=get.info()[[i]]$numpoints
                 if(length(w)>1) w=paste0("c(", paste0(w, collapse=","),")")
                 eps=get.info()[[i]]$numprecision
@@ -281,7 +314,7 @@ shinyServer(function(input, output, session) {
               options=paste0("c(", paste0(options, collapse=","),")") 
               question[i] = paste0("moodlequizR::mc(", options,  ", ifelse(1:", m, "== res[[", i, "]], 100, 0))$qmc")
             }
-            if(get.info()[[i]]$answertype=="Numeric Matrix") {
+            if(get.info()[[i]]$answertype=="Matrix") {
                 w=get.info()[[i]]$numpoints
                 if(length(w)>1) w=paste0("c(", paste0(w, collapse=","),")")
                 eps=get.info()[[i]]$numprecision
@@ -299,22 +332,22 @@ shinyServer(function(input, output, session) {
    })
 
    atxt = eventReactive(input$xmlbutton,{
-        starttext=rep("", input$numquestions)
-        endtext=rep("", input$numquestions)
-        answer=rep("", input$numquestions)
-        for(i in 1:input$numquestions) {
+        starttext=rep("", nq())
+        endtext=rep("", nq())
+        answer=rep("", nq())
+        for(i in 1:nq()) {
             starttext[i]= get.info()[[i]]$atxt[1] 
             if(get.info()[[i]]$questionnewline=="Yes") starttext[i]=paste0("<p>",starttext[i])  
             if(length(get.info()[[i]]$atxt)>1) endtext[i]=get.info()[[i]]$atxt[2]
-            if(get.info()[[i]]$answertype=="Numeric Answer")   
+            if(get.info()[[i]]$answertype=="Number")   
                 answer[i] = paste0(" res[[", i, "]]")
-            if(get.info()[[i]]$answertype=="Numeric Matrix") 
+            if(get.info()[[i]]$answertype=="Matrix") 
                 answer[i] = paste0("moodlequizR::qamatrix(res[[", i, "]])$atxt")
             if(get.info()[[i]]$answertype == "Multiple Choice") { 
                 m=length(get.info()[[i]]$options)
                 options=paste0("\"", get.info()[[i]]$options,"\"")
                 options=paste0("c(", paste0(options, collapse=","),")")
-                answer[i] = paste0( options, "[res[[", i, "]]]")
+                answer[i] = paste0("moodlequizR::mc(", options,  ", ifelse(1:", m, "== res[[", i, "]], 100, 0))$amc")
             }   
             if(get.info()[[i]]$answertype=="Verbatim")   {
               if(starttext[i]=="NO ANSWER") {
@@ -330,23 +363,77 @@ shinyServer(function(input, output, session) {
         code = paste("paste0(", code, ")")
         code
    })
-   
-   output$messages=renderText({
-       out=""
-       if(input$folder=="getwd()") return(out)
-       if(!dir.exists(input$folder)) out="Folder path incomplete or folder does not exist"
+      
+   get.examples = reactive({
+       if(input$moodleRquizzes=="moodleRexample1") out=moodlequizR::moodleRexample1 
+       if(input$moodleRquizzes=="moodleRexample2") out=moodlequizR::moodleRexample2
+       if(input$moodleRquizzes=="moodleRexample3") out=moodlequizR::moodleRexample3
+       if(input$moodleRquizzes=="moodleRexample4") out=moodlequizR::moodleRexample4
+       if(input$moodleRquizzes=="moodleRexample5") out=moodlequizR::moodleRexample5   
+       if(input$moodleRquizzes=="moodleRexample6") out=moodlequizR::moodleRexample6 
+       if(input$moodleRquizzes=="moodleRexample7") out=moodlequizR::moodleRexample7
+       if(input$moodleRquizzes=="moodleRexample8") out=moodlequizR::moodleRexample8 
+       if(input$moodleRquizzes=="moodleRexample9") out=moodlequizR::moodleRexample9
+       if(input$moodleRquizzes=="moodleRexample10") out=moodlequizR::moodleRexample10
+       if(input$moodleRquizzes=="moodleRexample11") out=moodlequizR::moodleRexample11
+       if(input$moodleRquizzes=="moodleRexample12") out=moodlequizR::moodleRexample12
+       if(input$moodleRquizzes=="moodleRexample13") out=moodlequizR::moodleRexample13
+       if(input$moodleRquizzes=="moodleRexample14") out=moodlequizR::moodleRexample14
+       if(input$moodleRquizzes=="moodleRexample15") out=moodlequizR::moodleRexample15
        out
+   
+   })
+   
+    folder=reactive({
+     if(input$quizname=="") {
+        return(c("NO", "NOQUIZ"))
+     }      
+     if(input$folder!="c:\\") {
+        if(!dir.exists(input$folder)) {
+          return(c("NO", "NOFOLDERB"))
+        }  
+        return(input$folder)
+     }   
+     if(input$folder=="c:\\") return(c("NO", "NOFOLDERA"))
+     return("NO") 
+   })   
+   
+   output$nofolder=renderUI({
+         if("NOFOLDERB" %in% folder()) {   
+            radioButtons("makefolder", "Folder does not exist! Do you want to create it?", 
+                  choices=c("No", "Yes"), inline=TRUE)
+         }
+         
+   })
+   
+   createfolder = reactive({
+      if(("NOFOLDERB" %in% folder()) & input$makefolder=="Yes") {
+        dir.create(input$folder)  
+        return(paste0("Folder ", input$folder, " was created"))  
+      }
+      ""  
    })
     
-   output$text <- renderPrint({                   
-        txt = gen.R()
+   output$text <- renderPrint({  
+        if("NO" %in% folder()) {
+           if("NOFOLDERA" %in% folder()) return("Enter the folder where you want to store the files") 
+           if("NOFOLDERB" %in% folder()) {
+              txt=createfolder()
+              return(txt)
+           }   
+           if("NOQUIZ" %in% folder()) return("Enter the name of the quiz!")
+        }
+        txt = gen.R()          
         write(txt, paste0(folder(), "/", input$quizname,".R"))
-        source(paste0(folder(), "/", input$quizname, ".R"))
+        if(input$moodleRquizzes==" ")
+            source(paste0(folder(), "/", input$quizname, ".R"))
+        else input.values = get.examples()
+        source(paste0(folder(), "/", input$quizname,".R"))
         fun=get(input$quizname)
-        if(input$doquiz=="Yes")
-           moodlequizR::genquiz(as.numeric(input$numquiz), fun, folder = folder())     
+        if(input$doquiz=="Yes") 
+           genquiz(as.numeric(input$numquiz), fun, folder = folder(), funname=input$quizname)     
         cat("Files are saved in folder: ", folder(),"\n")
-        cat(paste0(input$quizname,".R:\n"))
+        cat(paste0(input$quizname,".R = "))
         fun
    })
 })     

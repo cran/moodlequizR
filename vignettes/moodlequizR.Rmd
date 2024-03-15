@@ -18,41 +18,99 @@ knitr::opts_chunk$set(
 )
 ```
 
-*moodlequizR* is a package that allows us to easily create fully randomized tests for moodle. It includes with a shiny web application that allows even those with limited knowledge of R to create simple quizzes and exams.
+*moodlequizR* is a package that allows the user to easily create fully randomized tests for Moodle, or any other online assessment platform that uses the XML format to transfer questions. It includes a shiny web application that makes it possible for even those with limited knowledge of R to create simple quizzes and exams.
 
 ## Basic Workflow
 
-The idea is to create a file outside of moodle that can then be imported. The steps are
+The idea is to create a file outside of Moodle that can then be imported. The steps are
 
-1)  Create an R script *quizxyz.R* either with the shiny app by running *shinymoodlequizR* or with any ASCII word processor.
+1)  Create an R script *quizxyz.R* either with the shiny app by running *shinymoodlequizR*, with Rstudio or with any ASCII word processor.
 
-2)  Create a file called *newquiz.xml*. This is done automatically by the shiny app, or by running
+2)  Create a file called *quizxyz.xml*. This is done automatically by the shiny app, or by running
 
 ```{r eval=FALSE}
 make.xml(quizxyz, 20)
 ```
 
-xml is one of the standard file type recognized by moodle.
+XML is one of the standard file types recognized by Moodle and several other online test systems.
 
-3)  Go to moodle, the Question Bank, and Import *newquiz.xml*.
+3)  Go to moodle, the Question Bank, and Import *quizxyz.xml*.
 
 ## shinymoodlequizR
 
 The best way to get started is by using the interactive shiny app. Start it with
 
 ```{r eval=FALSE}
-shinymoodlequizR()
+moodlequizR::shinymoodlequizR()
 ```
 
 It is largely self-explanatory (I hope!) and also has a few hints on what to do. Here are some general suggestions:
 
--  when you type in the name (and folder) of a previously created quiz all the information will be displayed, so one doesn't have to start from scratch each time.
+-  If a quiz was previously created with the app before and one wants to either run more copies or make changes to the quiz, entering the name and folder of the quiz is enough to read all the information into the app, so one doesn't have to start from scratch each time. 
 
--  empty spaces should be avoided, so for example don't use 'Year 1' as a name of an object but use 'Year1'.
+-  in the name of the quiz and the folder empty spaces and special symbols such as -, @, back and forward slashes should be avoided, so for example don't use 'Year 1' as a name of an object but use 'Year1'.
 
-## quizxyz.R
+## My First Quiz
 
-The "heart" of moodlequizR are R scripts that can be turned into a *newquiz.xml*. These have to have a certain structure.
+Let's say we want to create a quiz where the students are presented with a random data set and are asked to find the mean with R. The data is to be 50 observations drawn from a normal distribution with mean 20 and standard deviation 5, all numbers rounded to 1 digit. After opening the shiny app we can enter the following information:
+
+- Name of Quiz / File : MyFirstQuiz  (this will be the name of the files stored on the computer)  
+-  Folder for Files:  c:\\Moodle (folder where files are to be stored)  
+- Category:  My First Quiz / Try 1 (the category in the Moodle Question Bank where the quiz will appear. For subcategories use /)  
+-  Quizzes:  25 (the number of randomized quizzes that should be generated)    
+
+Here is a screenshot:
+![](figure1.png)
+
+Notice the drop-down box **Included MoodlequizR Quizzes**. There are 15 quizzes of increasing complexity included in the package. 
+
+Next we enter: 
+
+-  Sample size: 50  (this can also be random, 50, 100, 1 means a random sample size from 50 to 100 in steps of 1. For a fixed sample size just use that number)    
+-  Type of Data: Normal (a drop down box where we can choose the distribution. Also includes the option R Code, which allows us to generate data from non-standard distributions)  
+-  Show data in moodle? Yes (Sometimes we want to hide the raw data)  
+-  Mean  20  (can be randomize)  
+-  Std  5  (can be randomize)  
+-  Round data to 1 digit  (can be randomize)    
+- Sort data? Yes  
+- General Calculations: (any R calculations that you might want to do early.) 
+
+Here again is a screen shot:
+
+![](figure2.png)
+  
+-  Start on new line: Yes (should this question appear on the same line as the last one?)  
+-  Text of Question: (the text that should appear in moodle)    
+-  R Calculations for this Question: (R commands to find correct answers. Whether a sequence of R commands appears here or in the box above is usually just a question of organization.)   
+-  Type of Question: Numeric (here the answer is a number, in other questions it might be multiple choice etc)    
+-  Point(s): 100 (how many points is the question worth? This allows for partial credit, so for example we might give 50 points for answers that were not rounded)   
+-  Precision: 0 (how precise does the answer have to be)  
+-  Text of Answer: (what the student sees once they submitted their solution. If empty it is the same text as the question but often we want to show the student the correct R command)    
+
+![](figure3.png)
+
+
+This is all we need for now, so we can go to the bottom of the app and hit the Create the Files! button. If all goes well we then see the MyFirstQuiz.R script which will be saved in Folder. In Folder there will also be a file MyFirstQuiz.dta, which has all the info we just entered as an R list and which can be read back into the app at a later time if we want to make changes. Finally there will be a file called MyFirstQuiz.xml, which we can read into Moodle. 
+
+Now we go to Moodle and import the file MyFirstQuiz.xml.xml into the Question bank. Previewing one quiz we see
+
+![](figure4.png)
+
+The students can high-light the data, hit Copy, switch to R and run
+
+![](figure5.png)
+
+Finally the student enters the answer into Moodle and hits Submit to see:
+
+![](figure6.png)
+
+The package includes 15 quizzes of increasing complexity. The best way to get started to make your own quiz is to pick one of these and make the needed changes!
+
+## R Scipts
+
+The shiny app is a good way to get started and learn about moodlequizR. However, there are limits to the complexity of the randomization that can be done with the app. For example, the data that all students see in any one question will always come from the same distribution. Another limitation is discussed below in the multiple stories section. All these limitations can be overcome by writing your own R scripts. Again a good way to get started is using the shiny app to get a first version and then add to the R script directly.
+
+The "heart" of moodlequizR are R scripts that can be turned into an XML file. These have to have a certain structure.
 
 Here is a very simple example of a *problemxxx.R*:
 
@@ -86,17 +144,17 @@ The routine generates a data set of size n (randomly chosen between 50 and 100 a
 
 The output of the routine has to be a list with five elements:
 
-a)  **category**: this is the category under which moodle will file the the problem.
+a)  **category**: this is the category under which Moodle will file the the problem.
 
 b)  **quizname**: the name of the problem (usually just problem - )
 
-c) **qtxt**: the ENTIRE text of the problem as it will appear to the students.
+c)  **qtxt**: the ENTIRE text of the problem as a single string as it will appear to the students.
 
-d) **htxt**: Hints that students see after their first attempt
+d)  **htxt**: Hints that students see after their first attempt
 
-e)  **atxt**: the ENTIRE text of the answers that the students see after the deadline for the quiz has passed. 
+e)  **atxt**: the ENTIRE text of the answers that the students see after the deadline for the quiz has passed, again as a single string . 
 
-**Note** the \<h5\> at then end of the routine. This is html code for *heading 5*. I use this here to make the text a bit more readable in moodle. But more generally we can use any html code and moodle knows what to do with it. The same is true for latex, as we will see later.
+**Note** the \<h5\> at then end of the routine. This is html code for *heading 5*. I use this here to make the text a bit more readable in Moodle.But more generally we can use any html code and Moodle knows what to do with it. The same is true for latex, as we will see later.
 
 Here is an example with two questions on the same page:
 
@@ -143,9 +201,9 @@ so one simply creates a long string with all the questions and another with all 
 
 ## CLOZE 
 
-moodle has a number of formats for writing questions. I mostly use the CLOZE format because it has a number of features that work well in the kinds of quizzes I typically do. There are three basic question types:
+Moodle has a number of formats for writing questions. moodlequizR uses the CLOZE format because it has a number of features that work well in the kinds of quizzes that are most common. There are three basic question types:
 
-a) Multiple Choice
+a) **Multiple Choice**
 
 **Example**: For this data set the mean is {1:MC:\~%0%lower\~%0%the same~%100%higher} than the median.
 
@@ -169,7 +227,22 @@ moodlequizR::mc(1, c(0,0, 100))
 
 Notice that this routine creates both the question and the answer text.
 
-b)  Numerical Answers
+The built-in options are:
+
+-  1:  lower, not equal to, higher, can't tell  
+-  2:  lower, not equal to, higher  
+-  3:  is statistically significant, is not statistically significant  
+-  4:  is statistically significant, is not statistically significant, can't tell  
+-  5:  is, is not  
+-  6:  Male, Female  
+-  7:  true, false  
+-  8:  has, does not have  
+-  9:  \(\ne, <, >\), can't tell  
+-  10: \(\ne, <, >\)  
+-  11: \(\mu, \pi, \sigma, \lambda, \rho\), other
+
+
+b)  **Numerical Answers**
 
 **Example**: The mean is {2:NM:%100%54.7:0.1~%80%54.7:0.5}.
 
@@ -193,7 +266,7 @@ moodlequizR::nm(c(54.7, 54.7), c(100, 80), c(0.1, 0.5), pts=2)
 
 If just one number is correct, say 50,  and the answer has to be given exactly, use *nm(50)*.
 
-c)  Text answers:
+c)  **Text answers**
 
 **Example**: The correct method for analysis is the {1:SA:correlation coefficient} 
 
@@ -215,8 +288,7 @@ the function automatically adds *s in a number of places. txt can be a vector.
 moodlequizR::sa("correlation coefficient")
 ```
 
-
-With these routines we can update out moodle quiz:
+With these routines we can update our quiz:
 
 ```{r}
 example2   <- function() {
@@ -258,19 +330,54 @@ example2   <- function() {
 }
 ```
 
-## Creating the .xml file
+## Helper Routines
 
-Once the quizxyz.R is written we can read it into R and then use the *make.xml* routine to create the moodle input file *newquiz.xml*:
+*moodlequizR* has a number of routines that help with making questions:
 
-```{r, eval=FALSE}
-make.xml(fun=quizxyz, k=20, folder=getwd())
+-  **moodle.table(x, DoRowNames = FALSE, DoBorder = FALSE, ncols = 10)** creates the html code to properly display the data in Moodle. x is either a vector of a data.frame, DoRowNames and DoBorder are obvious and ncol is used if x is a vector to decide how many numbers appear in one row.
+
+-  *paste.data* is used to read data copied from Moodle into R. Just run
+
+```{r eval=FALSE}
+dta=paste.data()
 ```
 
-This creates 20 quizzes and saves a file called \emph{newquiz.xml} in the folder given by getwd() . The routine can also pass arguments to the .R file.
+-  *qamatrix(tbl, points = 100, precision = 0, Border = 1, before, after)* displays a matrix of questions and answers, for example if the students have to find a sample correlation matrix. Border=0 means no border. before and after can be used to rows before and after tbl, for example to add names and row totals. 
 
-Next we need to open moodle and import this file.
+-  *RtoHTML(method, x, y, n, varnames, ...)* creates the html code to display the output of a number of R routines in Moodle the same as they appear in R. x, y, n are the variables as they are required by the respective methods, varnames is used to get the correct variable names.
 
-**Note** moodle has two Import places. One is for importing existing questions from other courses. We need to go to Questions - Import, select XML and drop \emph{newquiz.xml}.
+The methods currently included are:
+
+  1. t.test(x) one sample t test  
+  2. t.test(x, y) two-sample t test  
+  3. binom.test(x, n) test for binomial proportion  
+  4. summary(lm (y~x)) regression  
+  
+All the usual arguments, for example mu=10 for a hypothesis test in t.test,  can be passed to the methods. Say, for example, we want to ask the students a number of questions about the output of the regression command. In R we generate some random data and run
+
+```{r}
+x=1:20
+y=2*x+round(rnorm(20, 0, 3),2)
+summary(lm(y~x))
+```
+
+Now *RtoHTML(lm, x, y)* will generate code that in Moodle appears the same!
+
+The way to use this in the shiny app is as a question with the Verbatim option. See the included example 13.
+
+## Creating the XML file
+
+Once the quizxyz.R is written we can read it into R and then use the *make.xml* routine to create the Moodle input file *quizxyz.xml*:
+
+```{r, eval=FALSE}
+make.xml(quizxyz, k=20, folder=getwd())
+```
+
+This creates 20 quizzes and saves a file called \emph{quizxyz.xml} in the folder given by getwd(). The routine can also pass arguments to the .R file.
+
+Next we need to open Moodle and import this file.
+
+**Note** Moodle has two Import places. One is for importing existing questions from other courses. We need to go to Questions - Import, select XML and drop \emph{quizxyz.xml}.
 
 ## Multiple Stories 
 
@@ -335,9 +442,9 @@ make.xml(example3, 20, whichstory=2)
 
 ## Data Sets
 
-Often in Statistics we have data sets the students need to use. So these data sets need to be displayed properly in the quiz and it must be easy for the students to "transfer" them to R. 
+Often in Statistics we want the students to work with data sets. So these data sets need to be displayed properly in the quiz and it must be easy for the students to "transfer" them to R. 
 
-To display the data in the quiz use the *moodle.table* function. If it is called with a vector it arranges it as a table with (ncol=) 10 colums. If it is called with a matrix or data frame it makes a table as is.
+To display the data in the quiz use the *moodle.table* function. If it is called with a vector it arranges it as a table with (ncol=) 10 columns. If it is called with a matrix or data frame it creates a table as is.
 
 To get the data from the quiz into R moodlequizR has the routine *paste.data()*. All the students have to do is highlight the data (including column names if present) in the quiz with the mouse, right click copy, switch to R and run
 
@@ -345,13 +452,8 @@ To get the data from the quiz into R moodlequizR has the routine *paste.data()*.
 moodledata = paste.data()
 ```
 
-There is now an object called moodledata in R. If it is a single vector it can be used as is, say
 
-```{r eval=FALSE}
-mean(moodledata)
-```
-
-The routine correctly reads vectors, both numeric and character. Also tables with a mix of character and numeric columns. It works on both Windows and Apple operating systems.
+The routine correctly reads vectors, both numeric and character. Also tables with a mix of character and numeric columns. If on a arare occasion it reads a table as a vector we can use the argument *is.table=TRUE*.  It works on both Windows and Apple operating systems.
 
 So we could have another version of the above example, this time presenting the students with the the raw data:
 
@@ -386,7 +488,7 @@ function() {
 
 ## Graphics
 
-Often in statistics we use graphics. We can do this as follows: first you need to install the R package **base64**. 
+Often in statistics we use graphics. We can do this as follows: first you need to install the R package **base64**, available on CRAN. 
 
 Say we want the quiz to show a histogram and the student has to decide whether or not it is bell-shaped:
 
@@ -432,10 +534,10 @@ example6 <- function() {
    B <- round(runif(1, 1, 2), 1)
    fun <- function(x) {x*exp(x)}
    I <- round(integrate(fun, A, B)$value, 2)
-   qtxt <- paste0("$$\\int_{", A, "}^{", B, "} xe^x dx = $$", 
+   qtxt <- paste0("\\(\\int_{", A, "}^{", B, "} xe^x dx = \\)", 
    nm(I, eps=0.1))
    htxt <- ""
-   atxt <- paste0("$$\\int_{", A, "}^{", B, "} xe^x dx = $$", I)
+   atxt <- paste0("\\(\\int_{", A, "}^{", B, "} xe^x dx = \\)", I)
    list(qtxt = paste0("<h5>", qtxt, "</h5>"), 
         htxt = paste0("<h5>", htxt, "</h5>"),         
         atxt = paste0("<h5>", atxt, "</h5>"), 
@@ -444,3 +546,7 @@ example6 <- function() {
 ```
 
 **Note** here we see that one can use latex notation in Moodle quizzes, and so display formulas!
+
+## Conclusions
+
+If there are any problems with the package feel free to email me at wolfgang.rolke\@upr.edu. Also, I am always interested to hear your opinion, good or bad!

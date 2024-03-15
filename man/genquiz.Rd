@@ -4,18 +4,20 @@
 \alias{genquiz}
 \title{genquiz}
 \usage{
-genquiz(fun, k = 1, folder, problem = 0, Show = FALSE, ...)
+genquiz(k = 1, fun, folder, problem = 0, funname, Show = FALSE, ...)
 }
 \arguments{
-\item{fun}{name of the R routine that makes a quiz}
+\item{k}{=1, how many quizzes?}
 
-\item{k}{how many quizzes?}
+\item{fun}{name of the R routine that makes a quiz}
 
 \item{folder}{where is the .R located?}
 
 \item{problem}{(optional) which problem should be done?}
 
-\item{Show}{(optional) want to see what it looks like?}
+\item{funname}{name of quiz}
+
+\item{Show}{=FALSE (optional) want to see what it looks like?}
 
 \item{...}{further arguments passed to fun}
 }

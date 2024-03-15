@@ -23,6 +23,6 @@ make.xml = function (fun, k=1, folder, ...)
     } 
     else source(paste0(folder, "/", funname, ".R"))
     message(funname)    
-    suppressWarnings(genquiz(fun, k, folder=folder, ...))
+    suppressWarnings(genquiz(k, fun, folder=folder, funname=funname, ...))
     
 }

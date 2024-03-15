@@ -67,7 +67,15 @@ paste.data = function(sep="", header=TRUE, is.table=FALSE) {
   else
       df = suppressWarnings(.gmd.other(sep=sep, header=header, is.table=is.table))
   message("Data begins with:\n")
-  message(utils::head(df))
+  if(is.null(dim(df))) {
+    dftext = paste(utils::head(df), " ")
+    message(dftext)
+  }  
+  else {
+    message(as.character(paste(colnames(df)," ")))
+    for(i in 1:min(6, nrow(df)))
+      message(as.character(paste(df[i, ]," ")))
+  }  
   df
 }
 
