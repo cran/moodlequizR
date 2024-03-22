@@ -1,6 +1,6 @@
-d4aaab3c1f5aaedf583b3c3aa2989cba *DESCRIPTION
+a0fb3a72758b660fc99f0d74859b862c *DESCRIPTION
 d65dc55acff2a5aad660c9de08d91a8a *NAMESPACE
-d132ebd0c6c89b722f541e7c26c15536 *NEWS.md
+9248b5494981e75d3380aa01c77255ed *NEWS.md
 9766e737ecd2ae35879b9cd82b86c4ff *R/RtoHTML.R
 bf6b88e1e0c4ae8b09ea63ce17df977e *R/gen.cont.table.data.R
 34e97806c894d1b5c13e24b06d1bac4f *R/genquiz.R
@@ -29,7 +29,7 @@ be54748c9fcb1858903bb98d4166031c *R/png64.R
 90e229032c9ae0e6b5747d6fcf943159 *R/qamatrix.R
 08c54367b51d02a2327e3cb4b9d9e5d5 *R/rcategorical.R
 2ec09382cd9aa44ce043ca845d2710b0 *R/sa.R
-e264c776dd6d0ae3e954967bcdad30f9 *build/vignette.rds
+8e92de88506f608ec5054421c4844c46 *build/vignette.rds
 35253e1a61cd384a69a98eeed0152cd5 *data/moodleRexample1.rda
 7a57fce036f2f24a3530fd0de4028e31 *data/moodleRexample10.rda
 068e9add18aae4ccce351c47dae13eb7 *data/moodleRexample11.rda
@@ -45,11 +45,11 @@ dbf1cecfa9aac2efc9e59645e9c9d645 *data/moodleRexample5.rda
 5b00b82c5d2e12a7c154232d69933704 *data/moodleRexample7.rda
 0144143a5463176a756f18f718f31e48 *data/moodleRexample8.rda
 238db89105c5412b2c56dd76d292cdb3 *data/moodleRexample9.rda
-bbec703e56b11449a621f8546a6d2b3c *inst/doc/moodlequizR.R
-6cea7c7c46df68713d5fd006d93b5696 *inst/doc/moodlequizR.Rmd
-d1386b0d94285f51b52b056a3c73968d *inst/doc/moodlequizR.html
-d855c358931222938439049b37adad50 *inst/shinymoodlequizR/server.R
-46435475d9d817ce1e8c9beb0618ac33 *inst/shinymoodlequizR/ui.R
+2d9c8dd839ff852b346d6ee9e830effd *inst/doc/moodlequizR.R
+68438f7b1fc2288e99c5516edd5b662e *inst/doc/moodlequizR.Rmd
+74fc6e1e23bf4228ec690a8e9ad3fce9 *inst/doc/moodlequizR.html
+de1fe65b326b9b4a746749b23daae9a2 *inst/shinymoodlequizR/server.R
+c4b1ebc976ee4b5800d91521887918f6 *inst/shinymoodlequizR/ui.R
 da899eba4386fa3a0b56374fc6f295fe *man/RtoHTML.Rd
 895c633cfd099816081bd1d9f707f367 *man/gen.cont.table.data.Rd
 0f7d824710da07fcc696b4ff6f9379b0 *man/genquiz.Rd
@@ -78,10 +78,10 @@ ca255a758e1f5907eed21e3f1987ddc4 *man/moodleRexample7.Rd
 e47dc22596fde543f338c8e423202174 *man/rcategorical.Rd
 05832f0acb62d71bafae76ae133257a7 *man/sa.Rd
 ddee0a0ca46f3b91037412dd1ccf1923 *man/shinymoodlequizR.Rd
-77456fd9959fbce02e919783e0000f0e *vignettes/figure1.png
+320b684d0a8fa80ee9a8112b855f0f0e *vignettes/figure1.png
 412c336c02c6328a1f1c3f5a88584c33 *vignettes/figure2.png
 52a998654b9de442a6bb8b3730870762 *vignettes/figure3.png
 c0dad2aa541e2062491cc2195d045895 *vignettes/figure4.png
 56e7cd3e84744bac5829b9135f591640 *vignettes/figure5.png
 16eadd437dc174543a3bcc6aaba9acd7 *vignettes/figure6.png
-6cea7c7c46df68713d5fd006d93b5696 *vignettes/moodlequizR.Rmd
+68438f7b1fc2288e99c5516edd5b662e *vignettes/moodlequizR.Rmd

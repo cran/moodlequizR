@@ -106,6 +106,12 @@ Finally the student enters the answer into Moodle and hits Submit to see:
 
 The package includes 15 quizzes of increasing complexity. The best way to get started to make your own quiz is to pick one of these and make the needed changes!
 
+### Question / Part of Question and @
+
+In the app a *Question / Part of Question* is usually just that, a place where the students have to enter their answer to a question. However, a bit more general it is any place where the quiz is randomized, and sometimes that might appear as just text. For an example consider the built-in example 13, where the first "Question" just displays the output of an R command.
+
+In the text that the user enters in the box the randomized part will appear at the @ symbol, or at the end if no @ is found.
+
 ## R Scipts
 
 The shiny app is a good way to get started and learn about moodlequizR. However, there are limits to the complexity of the randomization that can be done with the app. For example, the data that all students see in any one question will always come from the same distribution. Another limitation is discussed below in the multiple stories section. All these limitations can be overcome by writing your own R scripts. Again a good way to get started is using the shiny app to get a first version and then add to the R script directly.

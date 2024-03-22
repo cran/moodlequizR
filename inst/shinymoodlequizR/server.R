@@ -1,5 +1,6 @@
 library(shinyMatrix)
 library(ggplot2)
+library(moodlequizR)
 mcchoices=c("yes , no", 
             "lower ,not equal to , higher , can not say", 
             "lower , not equal to , higher", 
@@ -99,8 +100,14 @@ shinyServer(function(input, output, session) {
    })
 
    observeEvent(input$readbutton,{
+   
+        if(!is.null(input$filefromfolder)) {
+          file <- input$filefromfolder
+          req(file)
+          source(file$datapath)   
+        }  
         if(input$moodleRquizzes!=" ") {
-            input.values=get(input$moodleRquizzes)
+            input.values=get(input$moodleRquizzes)            
         }    
         else {  
           if( !(folder()[1] %in% c("c:\\", "NO")) ) {       
@@ -109,7 +116,11 @@ shinyServer(function(input, output, session) {
             source(fl)            
           }  
         } 
-        numquestions$a=input.values$numquestions          
+        numquestions$a=input.values$numquestions 
+        if(!is.null(input$filefromfolder)) {
+           updateTextInput(session, "quizname",  value = input.values[["quizname"]])
+           updateTextInput(session, "folder",  value = input.values[["folder"]])
+        }         
         for(i in 1:length(input.values)) { 
           if(names(input.values)[i]%in%all.inputs[["radio"]])     
              updateRadioButtons(session, names(input.values)[i],  selected = input.values[[i]])
@@ -125,7 +136,7 @@ shinyServer(function(input, output, session) {
 
    })        
    
-   observeEvent(input$readbutton,{    
+   observeEvent(input$readbutton,{ 
      if(input$distribution!="Categorical Variable") return(NULL)
      if(input$moodleRquizzes!=" ") {
         input.values=get(input$moodleRquizzes)
@@ -406,6 +417,23 @@ shinyServer(function(input, output, session) {
          
    })
    
+   output$readold=renderUI({
+      dobutton=FALSE
+      if(!is.null(input$filefromfolder)) dobutton=TRUE
+      if(input$quizname != "" & input$folder!="c:\\") {
+        if(file.exists(input$folder)) {
+           if(file.exists(paste0(input$folder,  "\\", input$quizname,".R"))) {
+              dobutton=TRUE
+           }   
+        }      
+      }
+      if(input$moodleRquizzes != " " | dobutton) {
+           column(6, actionButton("readbutton", 
+              HTML("<font color=\"blue\">Click twice to read in info<font color=\"black\">")), 
+              style = "margin-top: 25px;")        
+         }
+   })
+   
    createfolder = reactive({
       if(("NOFOLDERB" %in% folder()) & input$makefolder=="Yes") {
         dir.create(input$folder)  
@@ -415,13 +443,15 @@ shinyServer(function(input, output, session) {
    })
     
    output$text <- renderPrint({  
-        if("NO" %in% folder()) {
-           if("NOFOLDERA" %in% folder()) return("Enter the folder where you want to store the files") 
-           if("NOFOLDERB" %in% folder()) {
-              txt=createfolder()
-              return(txt)
+        if(is.null(input$filefromfolder)) {
+           if("NO" %in% folder()) {
+              if("NOFOLDERA" %in% folder()) return("Enter the folder where you want to store the files") 
+              if("NOFOLDERB" %in% folder()) {
+                 txt=createfolder()
+                 return(txt)
+              }   
+              if("NOQUIZ" %in% folder()) return("Enter the name of the quiz!")
            }   
-           if("NOQUIZ" %in% folder()) return("Enter the name of the quiz!")
         }
         txt = gen.R()          
         write(txt, paste0(folder(), "/", input$quizname,".R"))

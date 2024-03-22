@@ -35,15 +35,17 @@ names(moodleRquizzes)=c("0: None",
 shinyUI(fluidPage(
   titlePanel("moodlequizR"),
   radioButtons("dtl", "Detailed Explanations", choices=c("No", "Yes"), inline = TRUE), 
+  fluidRow(  
+    column(4, fileInput("filefromfolder", "Choose dta File of Existing Quiz", accept = ".dta")),  
+    column(4, selectInput("moodleRquizzes", "Choose Included MoodlequizR Quiz", choices=moodleRquizzes)),
+    column(4, uiOutput("readold"))
+  ),
   fluidRow(
     column(3, textInput("quizname", "Name of Quiz / File ",  value="")),
     column(6, textInput("folder","Folder for Files", value="c:\\"))
   ), 
   uiOutput("nofolder"), 
-  fluidRow(  
-    column(4, selectInput("moodleRquizzes", "Included MoodlequizR Quizzes", choices=moodleRquizzes)),
-    column(3, actionButton("readbutton", HTML("<font color=\"blue\">Click twice to read in info<font color=\"black\">")), style = "margin-top: 25px;")
-  ),
+  
   fluidRow(
     column(6, textInput("category","Category", placeholder=" top /  middle / bottom")),
     column(6, textInput("numquiz","Number of Quizzes", value="25", width="35%")),  
