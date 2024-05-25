@@ -47,8 +47,12 @@ shinyServer(function(input, output, session) {
           HTML("<hr>"),
           HTML(paste("<h4>Question / Part of Question ", i, "</h4>")),
           radioButtons(paste0("question",i,"newline"), "Start on new Line", choices=c("Yes", "No"), inline=TRUE),
-          textAreaInput(paste0("qtxt",i), "Text of Question",  value="", width="100%"),
-          textAreaInput(paste0("calculate.answer",i), "R Calculations for this Question", value=""),    
+          fluidRow (
+             column(12, style = "background-color:#F2613F;", textAreaInput(paste0("qtxt",i), "Text of Question",  value="", width="100%"))
+          ),
+          fluidRow (
+             column(12, style = "background-color:#E3FEF7;",  textAreaInput(paste0("calculate.answer",i), "R Calculations for this Question", value=""))
+          ),          
           radioButtons(paste0("answertype",i), "Type of Question", choices=c("Number", "Multiple Choice", "Matrix", "Verbatim"), inline = TRUE),     
           conditionalPanel( condition = paste0('input.answertype', i, '== "Number"|input.answertype', i, '== "Matrix"'),
                             column(6, textInput(paste0("numpoints",i), "Point(s)", value="100", width = "50%")),
@@ -58,7 +62,7 @@ shinyServer(function(input, output, session) {
                             column(6, textInput(paste0("mcoptions",i), "Choices", placeholder="Yes,No,Maybe")),
                             column(6, selectInput(paste0("mcoptions",i,"a"), "Choices (List)", choices = mcchoices))
           ), 
-          textAreaInput(paste0("atxt",i), "Text of Answer",  placeholder="Same as question if empty", width="100%")
+          textAreaInput(paste0("atxt",i), "Text of Answer",  value="", width="100%")
           )
       }    
       out
@@ -348,26 +352,33 @@ shinyServer(function(input, output, session) {
         answer=rep("", nq())
         for(i in 1:nq()) {
             starttext[i]= get.info()[[i]]$atxt[1] 
-            if(get.info()[[i]]$questionnewline=="Yes") starttext[i]=paste0("<p>",starttext[i])  
-            if(length(get.info()[[i]]$atxt)>1) endtext[i]=get.info()[[i]]$atxt[2]
-            if(get.info()[[i]]$answertype=="Number")   
-                answer[i] = paste0(" res[[", i, "]]")
-            if(get.info()[[i]]$answertype=="Matrix") 
-                answer[i] = paste0("moodlequizR::qamatrix(res[[", i, "]])$atxt")
-            if(get.info()[[i]]$answertype == "Multiple Choice") { 
-                m=length(get.info()[[i]]$options)
-                options=paste0("\"", get.info()[[i]]$options,"\"")
-                options=paste0("c(", paste0(options, collapse=","),")")
-                answer[i] = paste0("moodlequizR::mc(", options,  ", ifelse(1:", m, "== res[[", i, "]], 100, 0))$amc")
-            }   
-            if(get.info()[[i]]$answertype=="Verbatim")   {
-              if(starttext[i]=="NO ANSWER") {
-                starttext[i]=""
-                answer[i]="\"\""
-              }  
-              else      
-                answer[i] = paste0(" res[[", i, "]]")
-            }            
+            if(starttext[i]==get.info()[[i]]$qtxt[1]) {
+              if(get.info()[[i]]$questionnewline=="Yes") starttext[i]=paste0("<p>",starttext[i])  
+              if(length(get.info()[[i]]$atxt)>1) endtext[i]=get.info()[[i]]$atxt[2]
+              if(get.info()[[i]]$answertype=="Number")   
+                  answer[i] = paste0(" res[[", i, "]]")
+              if(get.info()[[i]]$answertype=="Matrix") 
+                  answer[i] = paste0("moodlequizR::qamatrix(res[[", i, "]])$atxt")
+              if(get.info()[[i]]$answertype == "Multiple Choice") { 
+                  m=length(get.info()[[i]]$options)
+                  options=paste0("\"", get.info()[[i]]$options,"\"")
+                  options=paste0("c(", paste0(options, collapse=","),")")
+                  answer[i] = paste0("moodlequizR::mc(", options,  ", ifelse(1:", m, "== res[[", i, "]], 100, 0))$amc")
+              }   
+              if(get.info()[[i]]$answertype=="Verbatim")   {
+                if(starttext[i]=="NO ANSWER") {
+                  starttext[i]=""
+                  answer[i]="\"\""
+                }  
+                else      
+                  answer[i] = paste0(" res[[", i, "]]")
+              }
+            } 
+            else {
+              answer[i]= starttext[i]
+              starttext[i]="" 
+              endtext[i]=""
+            }    
         }
         code = paste0(starttext, " \",", answer, ",\" ", endtext, collapse="")
         code = paste0("\"<p>", code, "</p>\"")

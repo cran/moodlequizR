@@ -1,3 +1,10 @@
+shinyWidgets::setBackgroundColor(
+  color = "ghostwhite",
+  gradient = c("linear", "radial"),
+  direction = c("bottom", "top", "right", "left"),
+  shinydashboard = FALSE
+)
+
 mcchoices=c("yes , no", 
             "lower ,not equal to , higher , can not say", 
             "lower , not equal to , higher", 
@@ -34,6 +41,7 @@ names(moodleRquizzes)=c("0: None",
                
 shinyUI(fluidPage(
   titlePanel("moodlequizR"),
+  shinyWidgets::setBackgroundColor("ghostwhite"),
   radioButtons("dtl", "Detailed Explanations", choices=c("No", "Yes"), inline = TRUE), 
   fluidRow(  
     column(4, fileInput("filefromfolder", "Choose dta File of Existing Quiz", accept = ".dta")),  
@@ -41,8 +49,8 @@ shinyUI(fluidPage(
     column(4, uiOutput("readold"))
   ),
   fluidRow(
-    column(3, textInput("quizname", "Name of Quiz / File ",  value="")),
-    column(6, textInput("folder","Folder for Files", value="c:\\"))
+    column(3, style = "background-color:#E3FEF7;", textInput("quizname", "Name of Quiz / File ",  value="")),
+    column(6, style = "background-color:#F2613F;", textInput("folder","Folder for Files", value="c:\\"))
   ), 
   uiOutput("nofolder"), 
   
@@ -54,6 +62,7 @@ shinyUI(fluidPage(
     conditionalPanel( condition = "input.dtl == 'Yes'",
       HTML("<h5>&nbsp;&nbsp;Choose the name of the quiz as it will appear in the questions bank. This will also be the name of the .R file</h5>"),                    
       HTML("<h5>&nbsp;&nbsp;If you want to start with one of the built-in quizzes, choose it here and then click the button twice</h5>"),
+      HTML("<h5>&nbsp;&nbsp;Fields in red are required, fields in blue recommended</h5>")
     )
   ),
   fluidRow(
@@ -138,7 +147,7 @@ shinyUI(fluidPage(
   ),  
   HTML("<hr>"),
   fluidRow(
-     column(12, textAreaInput("gencalc","General Calculations", value="")),
+     column(12, style = "background-color:#E3FEF7;", textAreaInput("gencalc","General Calculations", value="")),
      conditionalPanel( condition = "input.dtl == 'Yes'",
         HTML("<h5>&nbsp;&nbsp;Here you can write any R code that needs to be executed.</h5>")
      )
@@ -152,7 +161,7 @@ shinyUI(fluidPage(
   ),
   textAreaInput("htxt", "Any hints after first try?", ""),
   fluidRow(column(3, radioButtons("doquiz", "Generate xml file", choices = c("Yes", "No"), inline = TRUE))),
-  fluidRow(column(3, actionButton("xmlbutton",HTML("<font color=\"red\">Create the Files!<font color=\"black\">")))  ),
+  fluidRow(column(6, style = "background-color:#F2613F;",actionButton("xmlbutton",HTML("<font color=\"red\">Create the Files!<font color=\"black\">")))  ),
   textOutput("messages"),
   fluidRow(verbatimTextOutput("text"))
 ))

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Dr. Wolfgang Rolke" />
 
-<meta name="date" content="2024-03-22" />
+<meta name="date" content="2024-05-25" />
 
 <title>moodlequizR</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">moodlequizR</h1>
 <h4 class="author">Dr. Wolfgang Rolke</h4>
-<h4 class="date">2024-03-22</h4>
+<h4 class="date">2024-05-25</h4>
 
 
 
@@ -780,18 +780,18 @@ command. In R we generate some random data and run</p>
 <span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; Residuals:</span></span>
 <span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; -5.1925 -0.8243 -0.1786  0.9469  6.4416 </span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; -5.0002 -1.8665 -0.0302  0.9981  4.5181 </span></span>
 <span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
 <span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; (Intercept)   0.4243     1.3281   0.319    0.753    </span></span>
-<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; x             1.9120     0.1109  17.246 1.22e-12 ***</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; (Intercept) -0.97226    1.17867  -0.825     0.42    </span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; x            1.94583    0.09839  19.776 1.17e-13 ***</span></span>
 <span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
 <span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
 <span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 2.859 on 18 degrees of freedom</span></span>
-<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt; Multiple R-squared:  0.9429, Adjusted R-squared:  0.9398 </span></span>
-<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; F-statistic: 297.4 on 1 and 18 DF,  p-value: 1.223e-12</span></span></code></pre></div>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 2.537 on 18 degrees of freedom</span></span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt; Multiple R-squared:  0.956,  Adjusted R-squared:  0.9536 </span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; F-statistic: 391.1 on 1 and 18 DF,  p-value: 1.17e-13</span></span></code></pre></div>
 <p>Now <em>RtoHTML(lm, x, y)</em> will generate code that in Moodle
 appears the same!</p>
 <p>The way to use this in the shiny app is as a question with the

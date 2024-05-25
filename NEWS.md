@@ -1,3 +1,6 @@
+# moodlequizR 2.1.1
+        some minor changes to the shiny app, 5/24/2024   
+
 # moodlequizR 2.1.0
         Fixes of several bugs, and some minor changes to the shiny app, 3/21/2024   
 
